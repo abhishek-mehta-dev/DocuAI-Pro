@@ -3,7 +3,7 @@ from sqlmodel import Session
 from app.schemas.user import UserCreate, User_Login,User
 from app.db.session import get_session
 from app.services.user_service import register as register_user, login,logout
-from app.schemas.user_transformer import convert_user_for_api
+from app.schemas.transformers.user_transformer import convert_user_for_api
 from app.utils.response_helpers import success_response
 from app.dependencies.auth import get_current_user
 from app.core.config import settings
