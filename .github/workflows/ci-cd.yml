@@ -11,6 +11,10 @@ jobs:
     name: Backend (FastAPI)
     runs-on: ubuntu-latest
     env:
+      FRONTEND_URL: "http://localhost:3000"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: "180"
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout code
@@ -35,7 +39,7 @@ jobs:
           cd backend
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           sleep 5
-          curl -f http://127.0.0.1:8000 || exit 1
+          curl -f http://127.0.0.1:8000/api/auth/register || exit 1
 
   frontend:
     name: Frontend (Next.js)
