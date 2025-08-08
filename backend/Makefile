@@ -21,3 +21,7 @@ alembic-revision:
 # Run tests
 test:
 	pytest -v --maxfail=1 --disable-warnings -q
+
+# Seed plans into database
+seed-plans:
+	python -m app.seeders.seed_plans
