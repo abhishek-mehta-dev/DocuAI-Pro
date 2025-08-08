@@ -31,7 +31,8 @@ jobs:
 
       - name: Run FastAPI server test
         run: |
-          uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 &
+          cd backend
+          uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           sleep 5
           curl -f http://127.0.0.1:8000 || exit 1
 

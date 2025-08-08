@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useProfile } from "@/hooks/useUser";
 import { Skeleton } from "@/components/ui/skeleton";
+import { withAuth } from "@/components/auth/withAuth";
 
-export default function ProfilePage() {
+const ProfilePage = () => {
   const { user, isLoading, isError } = useProfile();
 
   if (isLoading) {
@@ -86,4 +87,6 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-}
+};
+
+export default withAuth(ProfilePage);
