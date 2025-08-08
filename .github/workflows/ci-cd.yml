@@ -11,6 +11,10 @@ jobs:
     name: Backend (FastAPI)
     runs-on: ubuntu-latest
     env:
+      FRONTEND_URL: "http://localhost:3000"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: "180"
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout code
