@@ -55,6 +55,75 @@ const ProfilePage = () => {
     showPhone: false
   });
 
+  const data = user.data;
+
+  const handleEdit = useCallback(() => {
+    setIsEditing(true);
+    setEditedData({
+      first_name: data.first_name || "",
+      last_name: data.last_name || "",
+      username: data.username || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      location: data.location || "",
+      company: data.company || "",
+      bio: data.bio || ""
+    });
+  }, [data]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    setEditedData({
+      first_name: data.first_name || "",
+      last_name: data.last_name || "",
+      username: data.username || "",
+      email: data.email || "",
+      phone: data.phone || "",
+      location: data.location || "",
+      company: data.company || "",
+      bio: data.bio || ""
+    });
+  }, [data]);
+
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsSaving(false);
+      setIsEditing(false);
+      console.log("Profile updated:", editedData);
+    } catch (error) {
+      setIsSaving(false);
+      console.error("Save failed:", error);
+    }
+  }, [editedData]);
+
+  const handleInputChange = useCallback((field, value) => {
+    setEditedData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleAvatarUpload = useCallback(() => {
+    // Simulate file upload
+    console.log("Avatar upload triggered");
+  }, []);
+
+  const handleNotificationChange = useCallback((type, value) => {
+    setNotifications(prev => ({ ...prev, [type]: value }));
+  }, []);
+
+  const handlePrivacyChange = useCallback((setting, value) => {
+    setPrivacy(prev => ({ ...prev, [setting]: value }));
+  }, []);
+
+  const formatDate = useCallback((dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }, []);
+
   // Initialize edited data when user data loads - Fixed dependency
   useEffect(() => {
     if (user?.data && Object.keys(editedData).length === 0) {
@@ -127,75 +196,9 @@ const ProfilePage = () => {
     );
   }
 
-  const data = user.data;
+  
 
-  const handleEdit = useCallback(() => {
-    setIsEditing(true);
-    setEditedData({
-      first_name: data.first_name || "",
-      last_name: data.last_name || "",
-      username: data.username || "",
-      email: data.email || "",
-      phone: data.phone || "",
-      location: data.location || "",
-      company: data.company || "",
-      bio: data.bio || ""
-    });
-  }, [data]);
-
-  const handleCancel = useCallback(() => {
-    setIsEditing(false);
-    setEditedData({
-      first_name: data.first_name || "",
-      last_name: data.last_name || "",
-      username: data.username || "",
-      email: data.email || "",
-      phone: data.phone || "",
-      location: data.location || "",
-      company: data.company || "",
-      bio: data.bio || ""
-    });
-  }, [data]);
-
-  const handleSave = useCallback(async () => {
-    setIsSaving(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setIsSaving(false);
-      setIsEditing(false);
-      console.log("Profile updated:", editedData);
-    } catch (error) {
-      setIsSaving(false);
-      console.error("Save failed:", error);
-    }
-  }, [editedData]);
-
-  const handleInputChange = useCallback((field, value) => {
-    setEditedData(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleAvatarUpload = useCallback(() => {
-    // Simulate file upload
-    console.log("Avatar upload triggered");
-  }, []);
-
-  const handleNotificationChange = useCallback((type, value) => {
-    setNotifications(prev => ({ ...prev, [type]: value }));
-  }, []);
-
-  const handlePrivacyChange = useCallback((setting, value) => {
-    setPrivacy(prev => ({ ...prev, [setting]: value }));
-  }, []);
-
-  const formatDate = useCallback((dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }, []);
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
       {/* Background decorations */}
