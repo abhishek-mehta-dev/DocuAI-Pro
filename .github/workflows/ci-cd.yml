@@ -2,15 +2,16 @@ name: CI/CD - FastAPI & Next.js
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   backend:
     name: Backend (FastAPI)
     runs-on: ubuntu-latest
-
+    env:
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,4 +61,3 @@ jobs:
       - name: Lint Check
         working-directory: frontend/docuaipro
         run: npm run lint
-
