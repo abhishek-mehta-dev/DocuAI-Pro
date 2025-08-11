@@ -54,10 +54,10 @@ jobs:
           response=$(curl -s -w "%{http_code}" -X POST "http://127.0.0.1:8000/api/auth/register" \
             -H "Content-Type: application/json" \
             -d '{
-              "first_name": "John",
-              "last_name": "Doe",
-              "username": "johndoe",
-              "email": "user423@mailinator.com",
+              "first_name": "Johnd,
+              "last_name": "Does,
+              "username": "johq3oe",
+              "email": "user42ewq3@mailinator.com",
               "password": "password123",
               "confirm_password": "password123",
               "user_type": "user"
