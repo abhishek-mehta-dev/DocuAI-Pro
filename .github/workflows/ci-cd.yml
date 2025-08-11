@@ -39,7 +39,7 @@ jobs:
           cd backend
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           sleep 5
-          curl -X POST "http://127.0.0.1:8000/register" \
+          curl -X POST "http://127.0.0.1:8000/api/auth/register" \
           -H "Content-Type: application/json" \
           -d '{
           "first_name": "John",
