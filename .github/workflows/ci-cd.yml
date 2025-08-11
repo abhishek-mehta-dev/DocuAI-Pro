@@ -39,7 +39,9 @@ jobs:
           cd backend
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           sleep 5
-          curl -f http://127.0.0.1:8000/api/auth/register || exit 1
+          curl -f -X POST http://127.0.0.1:8000/api/auth/register \
+          -H "Content-Type: application/json" \
+          -d '{"username":"test","email":"test@mailinator.com","password":"test123"}' || exit 1
 
   frontend:
     name: Frontend (Next.js)
