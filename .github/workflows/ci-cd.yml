@@ -16,6 +16,24 @@ jobs:
       ACCESS_TOKEN_EXPIRE_MINUTES: "180"
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+    name: CI/CD - FastAPI & Next.js
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (FastAPI)
+    runs-on: ubuntu-latest
+    env:
+      FRONTEND_URL: "http://localhost:3000"
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ACCESS_TOKEN_EXPIRE_MINUTES: "180"
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,10 +72,10 @@ jobs:
           response=$(curl -s -w "%{http_code}" -X POST "http://127.0.0.1:8000/api/auth/register" \
             -H "Content-Type: application/json" \
             -d '{
-              "first_name": "Johnd,
-              "last_name": "Does,
-              "username": "johq3oe",
-              "email": "user42ewq3@mailinator.com",
+              "first_name": "Abhi,
+              "last_name": "shek,
+              "username": "uselessuser",
+              "email": "thisuserisnotexisit@mailinator.com",
               "password": "password123",
               "confirm_password": "password123",
               "user_type": "user"
@@ -116,3 +134,4 @@ jobs:
           else
             echo "No tests configured, skipping..."
           fi
+
