@@ -57,7 +57,7 @@ jobs:
               "first_name": "John",
               "last_name": "Doe",
               "username": "johndoe",
-              "email": "user@mailinator.com",
+              "email": "user423@mailinator.com",
               "password": "password123",
               "confirm_password": "password123",
               "user_type": "user"
