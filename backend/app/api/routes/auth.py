@@ -85,7 +85,6 @@ def google_login_route(
 
 @router.get("/profile")
 def get_me(current_user=Depends(get_current_user)):
-    print(current_user,"[user]")
     return success_response(
         data=convert_user_for_api(current_user),
         message="Fetched current user",

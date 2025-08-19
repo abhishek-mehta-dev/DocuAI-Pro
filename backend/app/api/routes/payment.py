@@ -5,6 +5,7 @@ from app.schemas.payment import PaymentCreate
 from app.services.payment_service import create_payment_intent, capture_payment
 from app.utils.response_helpers import success_response
 from app.dependencies.auth import get_current_user
+from app.schemas.transformers.payment_transformer import convert_payment_for_api
 
 router = APIRouter(prefix="/payment", tags=["Payments"])
 
@@ -27,10 +28,10 @@ def create_payment(payload: PaymentCreate, db: Session = Depends(get_session),cu
 
 
 @router.post("/verify/{order_id}")
-def verify_payment(order_id: str, db: Session = Depends(get_session),current_user=Depends(get_current_user)):
+def verify_payment(order_id: str, db: Session = Depends(get_session), current_user=Depends(get_current_user)):
     payment = capture_payment(db, order_id)
     return success_response(
-        data=payment,
+        data=convert_payment_for_api(payment),
         message="Payment captured successfully",
         status_code=status.HTTP_200_OK
     )
