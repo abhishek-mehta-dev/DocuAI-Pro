@@ -46,7 +46,7 @@ export default function SignInPage() {
   } = useForm();
   const { loginUser, isLoading } = useLogin();
 
-  // ✅ Password strength calculation moved out of onSubmit
+  // Password strength calculation moved out of onSubmit
   useEffect(() => {
     const calculateStrength = (password) => {
       let strength = 0;
@@ -78,7 +78,7 @@ export default function SignInPage() {
     if (success) {
       dispatch(showMessage({ message: "Login successful!", type: "success" }));
       setShowSuccess(true);
-      setTimeout(() => router.push(routes.plans), 1500);
+      router.push(routes.plans);
     } else {
       dispatch(
         showMessage({
@@ -156,7 +156,10 @@ export default function SignInPage() {
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
             {/* Email Field */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium text-gray-700"
+              >
                 Email Address
               </Label>
               <div className="relative">
@@ -198,7 +201,10 @@ export default function SignInPage() {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-gray-700"
+              >
                 Password
               </Label>
               <div className="relative">
