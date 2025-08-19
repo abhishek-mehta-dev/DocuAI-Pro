@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { useDispatch } from "react-redux";
 import { showMessage } from "@/context/store/messageSlice";
+import routes from "@/lib/routes";
 
 const PaymentPage = () => {
   const router = useRouter();
@@ -28,16 +29,19 @@ const PaymentPage = () => {
   const planAmount = Number(searchParams.get("amount") || 0);
   const planPeriod = searchParams.get("period") || "month";
 
-  // Validate numbers
-  if (isNaN(planId) || isNaN(planAmount)) {
-    console.error("Invalid planId or amount:", planId, planAmount);
-  }
-
   const { trigger: createPayment } = useCreatePayment();
   const { trigger: verifyPayment } = useVerifyPayment();
 
   const [isPaying, setIsPaying] = useState(false);
 
+  if (!paypalClientId) return <div>PayPal client ID missing</div>;
+
+  if (isNaN(planId) || isNaN(planAmount)) {
+    console.error("Invalid planId or amount:", planId, planAmount);
+    return <div>Invalid plan information</div>;
+  }
+
+  // Create order for both buttons and card fields
   const handleCreateOrder = async () => {
     const payload = {
       user_id: user.id,
@@ -47,31 +51,21 @@ const PaymentPage = () => {
       amount: planAmount,
     };
 
-    console.log("Payment payload:", payload);
-
-    // Ensure numbers are valid
-    if (
-      typeof payload.user_id !== "number" ||
-      typeof payload.plan_id !== "number" ||
-      typeof payload.amount !== "number"
-    ) {
-      throw new Error(
-        "Invalid payload: user_id, plan_id, or amount is not a number"
-      );
-    }
-
     const order = await createPayment(payload);
-    return order.orderId || order.id; // depending on backend response
+    if (!order?.orderId) throw new Error("No orderId returned");
+    return order.orderId; // must return string
   };
 
   const handleApprove = async (data) => {
     try {
-      await verifyPayment(data.orderID);
+      const orderID = data.orderID || data.id;
+      await verifyPayment(orderID);
       dispatch(
         showMessage({ message: "Payment successful!", type: "success" })
       );
-      router.push("/dashboard");
-    } catch {
+      router.push(routes.dashboard);
+    } catch (err) {
+      console.error(err);
       dispatch(
         showMessage({ message: "Payment verification failed", type: "error" })
       );
@@ -83,14 +77,12 @@ const PaymentPage = () => {
     dispatch(showMessage({ message: "Payment failed", type: "error" }));
   };
 
-  if (!paypalClientId) return <div>PayPal client ID missing</div>;
-
   return (
     <PayPalScriptProvider
       options={{
         "client-id": paypalClientId,
         currency: "USD",
-        components: "card-fields,buttons",
+        components: "buttons,card-fields",
         intent: "capture",
       }}
     >
@@ -100,6 +92,7 @@ const PaymentPage = () => {
             <h2 className="text-2xl font-bold">Payment Information</h2>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Plan Info */}
             <div className="bg-blue-50 p-5 rounded-lg text-center">
               <div className="text-lg font-medium">{planTitle}</div>
               <div className="mt-1 text-2xl font-bold">
@@ -108,6 +101,7 @@ const PaymentPage = () => {
               </div>
             </div>
 
+            {/* PayPal Wallet Button */}
             <div className="my-4">
               <PayPalButtons
                 createOrder={handleCreateOrder}
@@ -117,15 +111,14 @@ const PaymentPage = () => {
               />
             </div>
 
-            <PayPalCardFieldsProvider createOrder={handleCreateOrder}>
-              <PayPalCardFieldsForm className="border border-gray-300 rounded-md p-4">
-                <SubmitPayment
-                  isPaying={isPaying}
-                  setIsPaying={setIsPaying}
-                  onApprove={handleApprove}
-                  onError={handleError}
-                />
-              </PayPalCardFieldsForm>
+            {/* Card Fields Checkout */}
+            <PayPalCardFieldsProvider
+              createOrder={handleCreateOrder}
+              onApprove={handleApprove}
+              onError={handleError}
+            >
+              <PayPalCardFieldsForm className="border border-gray-300 rounded-md p-4" />
+              <SubmitPayment isPaying={isPaying} setIsPaying={setIsPaying} />
             </PayPalCardFieldsProvider>
           </CardContent>
         </Card>
@@ -134,33 +127,34 @@ const PaymentPage = () => {
   );
 };
 
-const SubmitPayment = ({ isPaying, setIsPaying, onApprove, onError }) => {
+const SubmitPayment = ({ isPaying, setIsPaying }) => {
   const { cardFieldsForm } = usePayPalCardFields();
 
   const handleClick = async () => {
-    if (!cardFieldsForm) throw new Error("No card form found");
+    if (!cardFieldsForm) {
+      console.error("Card form not found");
+      return;
+    }
 
     const formState = await cardFieldsForm.getState();
-    if (!formState.isFormValid) return alert("The payment form is invalid");
+    if (!formState.isFormValid) {
+      alert("The payment form is invalid");
+      return;
+    }
 
     setIsPaying(true);
-    cardFieldsForm
-      .submit()
-      .then(onApprove)
-      .catch((err) => {
-        setIsPaying(false);
-        onError(err);
-      });
+    cardFieldsForm.submit().finally(() => setIsPaying(false));
   };
 
   return (
     <button
-      className={`btn ${isPaying ? "btn-disabled" : "btn-primary"}`}
+      className={`mt-4 px-4 py-2 rounded text-white ${
+        isPaying ? "bg-gray-400" : "bg-blue-700"
+      }`}
       onClick={handleClick}
       disabled={isPaying}
-      style={{ float: "right" }}
     >
-      {isPaying ? <div className="spinner tiny" /> : "Pay"}
+      {isPaying ? "Processing..." : "Pay"}
     </button>
   );
 };

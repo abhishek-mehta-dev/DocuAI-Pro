@@ -21,13 +21,7 @@ export const useCreatePayment = (payload) => {
 export const useVerifyPayment = () => {
   const { data, error, isMutating, trigger } = useSWRMutation(
     "verify-payment",
-    verifyPayment
+    async (_, { arg }) => verifyPayment(arg)
   );
-  return {
-    data,
-    isError: Boolean(error),
-    isLoading: isMutating,
-    error,
-    trigger,
-  };
+  return { data, isError: !!error, isLoading: isMutating, error, trigger };
 };

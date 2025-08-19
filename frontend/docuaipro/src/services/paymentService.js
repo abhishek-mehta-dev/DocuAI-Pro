@@ -7,5 +7,5 @@ export const createPayment = async (payload) => {
 
 export const verifyPayment = async (orderId) => {
   const response = await apiClient.post(`/payment/verify/${orderId}`);
-  return response.data;
+  return response.data.data;
 };
