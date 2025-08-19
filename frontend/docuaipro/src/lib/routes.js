@@ -5,6 +5,13 @@ const routes = {
   plans: "/plans",
   profile: "/user/profile",
   dashboard: "/user/dashboard",
+  payment: "/user/payment",
+  chat: "/user/chat",
+  document: "/user/documents",
+  subscription: "/user/subscriptions",
+  analytics: "/user/analytics",
+  activity: "/user/activity",
+  admin: "/admin/dasboard",
 };
 
 export default routes;
