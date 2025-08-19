@@ -5,27 +5,51 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator 
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useLogout } from "@/hooks/useUser";
 import { useHeaderVisibility } from "@/context/store/useHeaderVisibility";
 import { useRouter } from "next/navigation";
-import { Menu, X, Zap, User, Settings, LogOut, CreditCard, FileText, HelpCircle, ChevronDown, Bell, Search, Moon, Sun } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Zap,
+  User,
+  Settings,
+  LogOut,
+  CreditCard,
+  FileText,
+  HelpCircle,
+  ChevronDown,
+  Bell,
+  Search,
+  Moon,
+  Sun,
+} from "lucide-react";
 import routes from "@/lib/routes";
 import { useDispatch } from "react-redux";
 import { showMessage } from "@/context/store/messageSlice";
 
-const ROUTES_WITHOUT_HEADER = ["/admin"];
+const ROUTES_WITHOUT_HEADER = [
+  routes.admin,
+  routes.payment,
+  routes.dashboard,
+  routes.activity,
+  routes.analytics,
+  routes.chat,
+  routes.document,
+  routes.profile,
+  routes.subscription,
+];
 
 // Default routes - can be imported from lib/routes if available
-
 
 const navigationLinks = [
   { name: "Features", href: "#features", external: false },
@@ -59,8 +83,8 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Close mobile menu on route change
@@ -84,11 +108,11 @@ export default function Header() {
 
   const handleNavClick = (href, external = false) => {
     if (external) {
-      window.open(href, '_blank', 'noopener,noreferrer');
-    } else if (href.startsWith('#')) {
+      window.open(href, "_blank", "noopener,noreferrer");
+    } else if (href.startsWith("#")) {
       const element = document.querySelector(href);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
       router.push(href);
@@ -105,7 +129,7 @@ export default function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Handle search functionality
-      console.log('Searching for:', searchQuery);
+      console.log("Searching for:", searchQuery);
       setIsSearchOpen(false);
       setSearchQuery("");
     }
@@ -113,13 +137,16 @@ export default function Header() {
 
   return (
     <>
-      <header className={`
+      <header
+        className={`
         sticky top-0 z-50 transition-all duration-300
-        ${isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200' 
-          : 'bg-white border-b border-gray-100'
+        ${
+          isScrolled
+            ? "bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200"
+            : "bg-white border-b border-gray-100"
         }
-      `}>
+      `}
+      >
         <div className="max-w-6xl mx-auto flex justify-between items-center py-4 px-4">
           {/* Logo - Enhanced */}
           <div className="flex items-center gap-3">
@@ -130,7 +157,10 @@ export default function Header() {
               <span className="font-bold text-xl text-gray-900 group-hover:text-blue-600 transition-colors">
                 DocuAI Pro
               </span>
-              <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
+              <Badge
+                variant="secondary"
+                className="text-xs hidden sm:inline-flex"
+              >
                 AI Powered
               </Badge>
             </Link>
@@ -169,13 +199,21 @@ export default function Header() {
               onClick={toggleTheme}
               className="hidden sm:flex"
             >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDarkMode ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
             </Button>
 
             {isAuthenticated ? (
               <>
                 {/* Notifications */}
-                <Button variant="ghost" size="icon" className="relative hidden sm:flex">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative hidden sm:flex"
+                >
                   <Bell className="w-4 h-4" />
                   {notifications > 0 && (
                     <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs bg-red-500">
@@ -187,9 +225,15 @@ export default function Header() {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 hover:bg-gray-100">
+                    <Button
+                      variant="ghost"
+                      className="flex items-center gap-2 hover:bg-gray-100"
+                    >
                       <Avatar className="w-8 h-8">
-                        <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.first_name} />
+                        <AvatarImage
+                          src={user?.avatar || "/placeholder.svg"}
+                          alt={user?.first_name}
+                        />
                         <AvatarFallback>
                           {user?.first_name?.[0] || user?.username?.[0] || "U"}
                         </AvatarFallback>
@@ -202,28 +246,41 @@ export default function Header() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <div className="px-3 py-2">
-                      <p className="text-sm font-medium">{user?.first_name || user?.username}</p>
+                      <p className="text-sm font-medium">
+                        {user?.first_name || user?.username}
+                      </p>
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push(routes.profile)}>
+                    <DropdownMenuItem
+                      onClick={() => router.push(routes.profile)}
+                    >
                       <User className="w-4 h-4 mr-2" />
                       Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(routes.dashboard)}>
+                    <DropdownMenuItem
+                      onClick={() => router.push(routes.dashboard)}
+                    >
                       <FileText className="w-4 h-4 mr-2" />
                       Dashboard
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(routes.billing)}>
+                    <DropdownMenuItem
+                      onClick={() => router.push(routes.billing)}
+                    >
                       <CreditCard className="w-4 h-4 mr-2" />
                       Billing
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push(routes.settings)}>
+                    <DropdownMenuItem
+                      onClick={() => router.push(routes.settings)}
+                    >
                       <Settings className="w-4 h-4 mr-2" />
                       Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-red-600"
+                    >
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
                     </DropdownMenuItem>
@@ -255,7 +312,11 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden"
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -283,7 +344,10 @@ export default function Header() {
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
           <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl">
             <div className="p-6">
               <div className="flex items-center justify-between mb-8">
@@ -318,13 +382,20 @@ export default function Header() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                         <Avatar className="w-10 h-10">
-                          <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.first_name} />
+                          <AvatarImage
+                            src={user?.avatar || "/placeholder.svg"}
+                            alt={user?.first_name}
+                          />
                           <AvatarFallback>
-                            {user?.first_name?.[0] || user?.username?.[0] || "U"}
+                            {user?.first_name?.[0] ||
+                              user?.username?.[0] ||
+                              "U"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-sm">{user?.first_name || user?.username}</p>
+                          <p className="font-medium text-sm">
+                            {user?.first_name || user?.username}
+                          </p>
                           <p className="text-xs text-gray-500">{user?.email}</p>
                         </div>
                       </div>
