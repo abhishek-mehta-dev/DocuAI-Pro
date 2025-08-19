@@ -6,14 +6,43 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, Mail, Twitter, Linkedin, Github, Heart, Send, CheckCircle, ExternalLink, MapPin, Phone, Clock, Zap } from 'lucide-react';
+import {
+  ArrowUp,
+  Mail,
+  Twitter,
+  Linkedin,
+  Github,
+  Heart,
+  Send,
+  CheckCircle,
+  ExternalLink,
+  MapPin,
+  Phone,
+  Clock,
+  Zap,
+} from "lucide-react";
 
-const ROUTES_WITHOUT_FOOTER = ["/admin"];
+const ROUTES_WITHOUT_FOOTER = ["/admin", "/user/payment"];
 
 const socialLinks = [
-  { name: "Twitter", icon: Twitter, url: "https://twitter.com", color: "hover:text-blue-400" },
-  { name: "LinkedIn", icon: Linkedin, url: "https://www.linkedin.com/in/abhishek-mehta-0724ab256", color: "hover:text-blue-600" },
-  { name: "GitHub", icon: Github, url: "https://github.com/abhishek-mehta-dev", color: "hover:text-gray-900" },
+  {
+    name: "Twitter",
+    icon: Twitter,
+    url: "https://twitter.com",
+    color: "hover:text-blue-400",
+  },
+  {
+    name: "LinkedIn",
+    icon: Linkedin,
+    url: "https://www.linkedin.com/in/abhishek-mehta-0724ab256",
+    color: "hover:text-blue-600",
+  },
+  {
+    name: "GitHub",
+    icon: Github,
+    url: "https://github.com/abhishek-mehta-dev",
+    color: "hover:text-gray-900",
+  },
 ];
 
 const quickLinks = [
@@ -40,7 +69,7 @@ const legalLinks = [
 export default function Footer() {
   const pathname = usePathname();
   const { isFooterVisible } = useFooterVisibility();
-  
+
   const shouldHideFooter = ROUTES_WITHOUT_FOOTER.some((route) =>
     pathname.startsWith(route)
   );
@@ -58,8 +87,8 @@ export default function Footer() {
       setShowBackToTop(window.scrollY > 400);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   // Existing conditional return preserved
@@ -71,27 +100,27 @@ export default function Footer() {
 
     setIsSubscribing(true);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsSubscribed(true);
     setIsSubscribing(false);
     setEmail("");
-    
+
     // Reset success state after 3 seconds
     setTimeout(() => setIsSubscribed(false), 3000);
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleLinkClick = (href, external) => {
     if (external) {
-      window.open(href, '_blank', 'noopener,noreferrer');
+      window.open(href, "_blank", "noopener,noreferrer");
     } else {
       // Handle internal navigation
       const element = document.querySelector(href);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     }
   };
@@ -101,7 +130,7 @@ export default function Footer() {
       <footer className="bg-gradient-to-b from-gray-100 to-gray-200 py-16 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] opacity-50" />
-        
+
         <div className="max-w-6xl mx-auto px-4 relative">
           {/* Newsletter Section */}
           <div className="bg-white rounded-2xl p-8 mb-12 shadow-lg border">
@@ -115,8 +144,11 @@ export default function Footer() {
               <p className="text-gray-600 mb-6">
                 Get the latest updates on new features and AI improvements
               </p>
-              
-              <form onSubmit={handleNewsletterSubmit} className="flex gap-3 max-w-md mx-auto">
+
+              <form
+                onSubmit={handleNewsletterSubmit}
+                className="flex gap-3 max-w-md mx-auto"
+              >
                 <Input
                   type="email"
                   placeholder="Enter your email"
@@ -125,8 +157,8 @@ export default function Footer() {
                   className="flex-1"
                   disabled={isSubscribing || isSubscribed}
                 />
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isSubscribing || isSubscribed || !email}
                   className="px-6"
                 >
@@ -139,7 +171,7 @@ export default function Footer() {
                   )}
                 </Button>
               </form>
-              
+
               {isSubscribed && (
                 <p className="text-green-600 text-sm mt-2 animate-fade-in">
                   ✨ Successfully subscribed! Welcome to our community.
@@ -161,10 +193,10 @@ export default function Footer() {
                   AI Powered
                 </Badge>
               </div>
-              
+
               <p className="text-gray-600 mb-6 leading-relaxed">
-                AI-powered PDF chat tool for professionals and teams. 
-                Transform how you interact with documents using advanced AI technology.
+                AI-powered PDF chat tool for professionals and teams. Transform
+                how you interact with documents using advanced AI technology.
               </p>
 
               {/* Contact Info */}
@@ -280,7 +312,7 @@ export default function Footer() {
               <Heart className="w-4 h-4 text-red-500 animate-pulse" />
               <span>in India</span>
             </div>
-            
+
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <Badge variant="outline" className="text-xs">
                 <Zap className="w-3 h-3 mr-1" />
@@ -307,8 +339,14 @@ export default function Footer() {
 
       <style jsx>{`
         @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
