@@ -2,7 +2,7 @@ from logging.config import fileConfig
 from sqlmodel import SQLModel
 from alembic import context
 from app.db.session import engine
-from app.db.models import user, subscription,plans  # Import all models so Alembic sees them
+from app.db.models import user, subscription,plans,payment  # Import all models so Alembic sees them
 
 config = context.config
 

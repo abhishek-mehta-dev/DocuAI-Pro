@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: Optional[int] = None
     SECRET_KEY: Optional[str] = None
     GOOGLE_CLIENT_ID:Optional [str] = None
+    PAYPAL_CLIENT_ID: Optional [str] = None
+    PAYPAL_SECRET: Optional [str] = None
 
     class Config:
         env_file = "app/.env"

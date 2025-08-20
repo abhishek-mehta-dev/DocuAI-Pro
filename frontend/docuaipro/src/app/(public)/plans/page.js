@@ -7,10 +7,12 @@ import { Check, Star, Zap, Users } from "lucide-react";
 import { usePlans } from "@/hooks/usePlan";
 import DocuAILoader from "@/components/Loader";
 import { withAuth } from "@/components/auth/withAuth";
+import { useRouter } from "next/navigation";
 
 const PlansPage = () => {
   const { plan, isLoading } = usePlans();
   const data = plan?.data || [];
+  const router = useRouter();
 
   const [billingPeriod, setBillingPeriod] = useState("monthly");
 
@@ -165,6 +167,11 @@ const PlansPage = () => {
                       ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
                       : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                   } transition-all duration-200`}
+                  onClick={() =>
+                    router.push(
+                      `/user/payment?planId=${p.id}&title=${p.title}&amount=${p.amount}&period=${billingPeriod}`
+                    )
+                  }
                 >
                   Start {p.freeTrialDays} day
                   {p.freeTrialDays > 1 ? "s" : ""} Free Trial
