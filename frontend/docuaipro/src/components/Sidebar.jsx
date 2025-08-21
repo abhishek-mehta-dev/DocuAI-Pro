@@ -11,12 +11,19 @@ import {
   X,
   Crown,
   Upload,
+  Youtube,
+  Bot,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import routes from "@/lib/routes";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLogout } from "@/hooks/useUser";
+import { useDispatch } from "react-redux";
+import { showMessage } from "@/context/store/messageSlice";
 
 const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: Home, path: routes.dashboard },
@@ -27,6 +34,13 @@ const menuItems = [
     path: routes.document,
   },
   { id: "upload", label: "Upload", icon: Upload, path: routes.chat },
+  {
+    id: "youtube",
+    label: "YouTube Upload",
+    icon: Youtube,
+    path: routes.youtube,
+  },
+  { id: "ai-agents", label: "AI Agents", icon: Bot, path: routes.bot },
   {
     id: "analytics",
     label: "Analytics",
@@ -45,13 +59,34 @@ const menuItems = [
 
 export function DashboardSidebar({ activeItem, onItemClick }) {
   const { user } = useAuth();
+  const { logoutUser } = useLogout();
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
-
+  const dispatch = useDispatch();
   const handleClick = (item) => {
     onItemClick(item.id);
     if (item.path) {
       router.push(item.path);
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      const result = await logoutUser();
+
+      if (result?.message) {
+        dispatch(showMessage({ message: result.message, type: "success" }));
+      } else {
+        dispatch(
+          showMessage({ message: "Logout successful", type: "success" })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        showMessage({
+          message: error?.message || "Logout failed",
+          type: "error",
+        })
+      );
     }
   };
 
@@ -117,20 +152,37 @@ export function DashboardSidebar({ activeItem, onItemClick }) {
       {/* Footer */}
       {!isCollapsed && (
         <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-accent-foreground">
-                JD
-              </span>
+          <div className="bg-sidebar-accent/50 rounded-lg p-3">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                <Avatar className="h-8 w-8">
+                  {user?.avatar_url && (
+                    <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                  )}
+                  <AvatarFallback className="text-sm font-medium">
+                    {user?.first_name?.[0] ?? ""}
+                    {user?.last_name?.[0] ?? ""}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {user?.full_name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user?.email}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user?.full_name}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {user?.email}
-              </p>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start text-left text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="text-sm">Sign out</span>
+            </Button>
           </div>
         </div>
       )}
