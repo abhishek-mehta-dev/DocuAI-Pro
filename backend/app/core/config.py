@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: Optional[str] = None
     PAYPAL_CLIENT_ID: Optional[str] = None
     PAYPAL_SECRET: Optional[str] = None
-    google_application_credentials: str
+    google_application_credentials:Optional[str] = None
     
     # LLM Provider
     DEFAULT_LLM_PROVIDER: str = "openai"
@@ -39,7 +39,8 @@ class Settings(BaseSettings):
     GOOGLE_GENAI_MODEL: str = "gemini-pro"
 
     # Google Vertex AI
-    VERTEX_MODEL: str = "chat-bison"
+    VERTEX_MODEL: Optional[str] = None  
+
 
     # Cohere
     COHERE_API_KEY: Optional[str] = None
@@ -61,8 +62,8 @@ class Settings(BaseSettings):
     NVIDIA_MODEL: str = "nemotron-3"
 
     # AWS Bedrock
-    BEDROCK_MODEL: str = "anthropic.claude-v2"
-    AWS_REGION: str = "us-east-1"
+    BEDROCK_MODEL: Optional[str] = None
+    AWS_REGION: Optional[str] = None
 
     OLLAMA_MODEL: Optional[str] = None
 
