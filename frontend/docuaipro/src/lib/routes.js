@@ -12,6 +12,8 @@ const routes = {
   analytics: "/user/analytics",
   activity: "/user/activity",
   admin: "/admin/dasboard",
+  youtube: "/user/youtube",
+  bot: "/user/agent",
 };
 
 export default routes;
