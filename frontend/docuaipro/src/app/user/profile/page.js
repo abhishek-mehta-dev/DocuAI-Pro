@@ -1,5 +1,5 @@
 "use client";
-import React,{useCallback,useState,useEffect} from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,33 +11,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 // import { useProfile } from "@/hooks/useUser";
 import { Skeleton } from "@/components/ui/skeleton";
 import { withAuth } from "@/components/auth/withAuth";
-import { User, Mail, Shield, Edit3, Save, X, Camera, Settings, Key, Bell, Globe, Calendar, MapPin, Phone, Briefcase, CheckCircle, AlertCircle, Upload, Download, Trash2, Eye, EyeOff } from 'lucide-react';
+import {
+  User,
+  Mail,
+  Shield,
+  Edit3,
+  Save,
+  X,
+  Camera,
+  Settings,
+  Key,
+  Bell,
+  Globe,
+  Calendar,
+  MapPin,
+  Phone,
+  Briefcase,
+  CheckCircle,
+  AlertCircle,
+  Upload,
+  Download,
+  Trash2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { useProfile } from "@/hooks/useUser";
 
-
-const useProfile = () => ({
-  user: {
-    data: {
-      first_name: "John",
-      last_name: "Doe", 
-      username: "johndoe",
-      email: "john.doe@example.com",
-      user_type: "Premium",
-      auth_provider: "Email",
-      avatar: "/placeholder.svg",
-      phone: "+1 (555) 123-4567",
-      location: "San Francisco, CA",
-      bio: "AI enthusiast and document processing expert",
-      company: "TechCorp Inc.",
-      joined_date: "2024-01-15",
-      last_login: "2024-12-09"
-    }
-  },
-  isLoading: false,
-  isError: false
-});
 const ProfilePage = () => {
   const { user, isLoading, isError } = useProfile();
-  
+
   // Interactive state
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
@@ -47,15 +49,15 @@ const ProfilePage = () => {
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
-    marketing: true
+    marketing: true,
   });
   const [privacy, setPrivacy] = useState({
     profileVisible: true,
     showEmail: false,
-    showPhone: false
+    showPhone: false,
   });
 
-  const data = user.data;
+  const data = user?.data;
 
   const handleEdit = useCallback(() => {
     setIsEditing(true);
@@ -64,10 +66,6 @@ const ProfilePage = () => {
       last_name: data.last_name || "",
       username: data.username || "",
       email: data.email || "",
-      phone: data.phone || "",
-      location: data.location || "",
-      company: data.company || "",
-      bio: data.bio || ""
     });
   }, [data]);
 
@@ -78,10 +76,6 @@ const ProfilePage = () => {
       last_name: data.last_name || "",
       username: data.username || "",
       email: data.email || "",
-      phone: data.phone || "",
-      location: data.location || "",
-      company: data.company || "",
-      bio: data.bio || ""
     });
   }, [data]);
 
@@ -89,7 +83,7 @@ const ProfilePage = () => {
     setIsSaving(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setIsSaving(false);
       setIsEditing(false);
       console.log("Profile updated:", editedData);
@@ -100,7 +94,7 @@ const ProfilePage = () => {
   }, [editedData]);
 
   const handleInputChange = useCallback((field, value) => {
-    setEditedData(prev => ({ ...prev, [field]: value }));
+    setEditedData((prev) => ({ ...prev, [field]: value }));
   }, []);
 
   const handleAvatarUpload = useCallback(() => {
@@ -109,18 +103,18 @@ const ProfilePage = () => {
   }, []);
 
   const handleNotificationChange = useCallback((type, value) => {
-    setNotifications(prev => ({ ...prev, [type]: value }));
+    setNotifications((prev) => ({ ...prev, [type]: value }));
   }, []);
 
   const handlePrivacyChange = useCallback((setting, value) => {
-    setPrivacy(prev => ({ ...prev, [setting]: value }));
+    setPrivacy((prev) => ({ ...prev, [setting]: value }));
   }, []);
 
   const formatDate = useCallback((dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   }, []);
 
@@ -132,10 +126,6 @@ const ProfilePage = () => {
         last_name: user.data.last_name || "",
         username: user.data.username || "",
         email: user.data.email || "",
-        phone: user.data.phone || "",
-        location: user.data.location || "",
-        company: user.data.company || "",
-        bio: user.data.bio || ""
       });
     }
   }, [user?.data, editedData]);
@@ -185,31 +175,36 @@ const ProfilePage = () => {
         <Card className="w-full max-w-md shadow-xl">
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Profile Error</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              Profile Error
+            </h2>
             <p className="text-red-500 text-sm mb-4">Failed to load profile.</p>
-            <Button onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
+            <Button onClick={() => window.location.reload()}>Try Again</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  
-
-  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
       {/* Background decorations */}
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
-      
+
       <div className="max-w-4xl mx-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Account Settings</h1>
-            <p className="text-gray-600">Manage your profile and account preferences</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Account Settings
+            </h1>
+            <p className="text-gray-600">
+              Manage your profile and account preferences
+            </p>
           </div>
 
           {/* Tab Navigation */}
@@ -222,7 +217,10 @@ const ProfilePage = () => {
               <Shield className="w-4 h-4" />
               Security
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger
+              value="notifications"
+              className="flex items-center gap-2"
+            >
               <Bell className="w-4 h-4" />
               Notifications
             </TabsTrigger>
@@ -248,7 +246,11 @@ const ProfilePage = () => {
                     </Button>
                   ) : (
                     <div className="flex gap-2">
-                      <Button onClick={handleSave} size="sm" disabled={isSaving}>
+                      <Button
+                        onClick={handleSave}
+                        size="sm"
+                        disabled={isSaving}
+                      >
                         {isSaving ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
@@ -261,7 +263,11 @@ const ProfilePage = () => {
                           </>
                         )}
                       </Button>
-                      <Button onClick={handleCancel} variant="outline" size="sm">
+                      <Button
+                        onClick={handleCancel}
+                        variant="outline"
+                        size="sm"
+                      >
                         <X className="w-4 h-4 mr-2" />
                         Cancel
                       </Button>
@@ -274,9 +280,13 @@ const ProfilePage = () => {
                 <div className="flex items-center space-x-6">
                   <div className="relative">
                     <Avatar className="w-20 h-20">
-                      <AvatarImage src={data.avatar || "/placeholder.svg"} alt={data.first_name} />
+                      <AvatarImage
+                        src={data.avatar || "/placeholder.svg"}
+                        alt={data.first_name}
+                      />
                       <AvatarFallback className="text-lg">
-                        {data.first_name?.[0]}{data.last_name?.[0]}
+                        {data.first_name?.[0]}
+                        {data.last_name?.[0]}
                       </AvatarFallback>
                     </Avatar>
                     {isEditing && (
@@ -318,8 +328,14 @@ const ProfilePage = () => {
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="firstName"
-                        value={isEditing ? (editedData.first_name || "") : (data.first_name || "")}
-                        onChange={(e) => handleInputChange('first_name', e.target.value)}
+                        value={
+                          isEditing
+                            ? editedData.first_name || ""
+                            : data.first_name || ""
+                        }
+                        onChange={(e) =>
+                          handleInputChange("first_name", e.target.value)
+                        }
                         disabled={!isEditing}
                         className="pl-10"
                       />
@@ -334,8 +350,14 @@ const ProfilePage = () => {
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="lastName"
-                        value={isEditing ? (editedData.last_name || "") : (data.last_name || "")}
-                        onChange={(e) => handleInputChange('last_name', e.target.value)}
+                        value={
+                          isEditing
+                            ? editedData.last_name || ""
+                            : data.last_name || ""
+                        }
+                        onChange={(e) =>
+                          handleInputChange("last_name", e.target.value)
+                        }
                         disabled={!isEditing}
                         className="pl-10"
                       />
@@ -350,8 +372,14 @@ const ProfilePage = () => {
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="username"
-                        value={isEditing ? (editedData.username || "") : (data.username || "")}
-                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        value={
+                          isEditing
+                            ? editedData.username || ""
+                            : data.username || ""
+                        }
+                        onChange={(e) =>
+                          handleInputChange("username", e.target.value)
+                        }
                         disabled={!isEditing}
                         className="pl-10"
                       />
@@ -366,77 +394,15 @@ const ProfilePage = () => {
                       <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
                         id="email"
-                        value={isEditing ? (editedData.email || "") : (data.email || "")}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        value={
+                          isEditing ? editedData.email || "" : data.email || ""
+                        }
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         disabled={!isEditing}
                         className="pl-10"
                       />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium">
-                      Phone Number
-                    </Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        id="phone"
-                        value={isEditing ? (editedData.phone || "") : (data.phone || "")}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                        disabled={!isEditing}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="location" className="text-sm font-medium">
-                      Location
-                    </Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        id="location"
-                        value={isEditing ? (editedData.location || "") : (data.location || "")}
-                        onChange={(e) => handleInputChange('location', e.target.value)}
-                        disabled={!isEditing}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="company" className="text-sm font-medium">
-                      Company
-                    </Label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        id="company"
-                        value={isEditing ? (editedData.company || "") : (data.company || "")}
-                        onChange={(e) => handleInputChange('company', e.target.value)}
-                        disabled={!isEditing}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Account Info */}
-                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                  <h4 className="font-medium text-gray-900 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Account Information
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-500">Member since:</span>
-                      <p className="font-medium">{formatDate(data.joined_date)}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Last login:</span>
-                      <p className="font-medium">{formatDate(data.last_login)}</p>
                     </div>
                   </div>
                 </div>
@@ -458,18 +424,22 @@ const ProfilePage = () => {
                   <div className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <h4 className="font-medium">Change Password</h4>
-                      <p className="text-sm text-gray-600">Update your account password</p>
+                      <p className="text-sm text-gray-600">
+                        Update your account password
+                      </p>
                     </div>
                     <Button variant="outline">
                       <Key className="w-4 h-4 mr-2" />
                       Change
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <h4 className="font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-gray-600">Add an extra layer of security</p>
+                      <p className="text-sm text-gray-600">
+                        Add an extra layer of security
+                      </p>
                     </div>
                     <Button variant="outline">
                       <Shield className="w-4 h-4 mr-2" />
@@ -480,7 +450,9 @@ const ProfilePage = () => {
                   <div className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
                       <h4 className="font-medium">Login Sessions</h4>
-                      <p className="text-sm text-gray-600">Manage your active sessions</p>
+                      <p className="text-sm text-gray-600">
+                        Manage your active sessions
+                      </p>
                     </div>
                     <Button variant="outline">
                       <Settings className="w-4 h-4 mr-2" />
@@ -504,23 +476,32 @@ const ProfilePage = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   {Object.entries(notifications).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={key}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div>
                         <h4 className="font-medium capitalize">
-                          {key === 'email' ? 'Email Notifications' : 
-                           key === 'push' ? 'Push Notifications' : 
-                           'Marketing Communications'}
+                          {key === "email"
+                            ? "Email Notifications"
+                            : key === "push"
+                            ? "Push Notifications"
+                            : "Marketing Communications"}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          {key === 'email' ? 'Receive notifications via email' :
-                           key === 'push' ? 'Receive push notifications' :
-                           'Receive marketing and promotional emails'}
+                          {key === "email"
+                            ? "Receive notifications via email"
+                            : key === "push"
+                            ? "Receive push notifications"
+                            : "Receive marketing and promotional emails"}
                         </p>
                       </div>
                       <input
                         type="checkbox"
                         checked={value}
-                        onChange={(e) => handleNotificationChange(key, e.target.checked)}
+                        onChange={(e) =>
+                          handleNotificationChange(key, e.target.checked)
+                        }
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                     </div>
@@ -542,23 +523,32 @@ const ProfilePage = () => {
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   {Object.entries(privacy).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={key}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div>
                         <h4 className="font-medium">
-                          {key === 'profileVisible' ? 'Profile Visibility' :
-                           key === 'showEmail' ? 'Show Email Address' :
-                           'Show Phone Number'}
+                          {key === "profileVisible"
+                            ? "Profile Visibility"
+                            : key === "showEmail"
+                            ? "Show Email Address"
+                            : "Show Phone Number"}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          {key === 'profileVisible' ? 'Make your profile visible to other users' :
-                           key === 'showEmail' ? 'Display your email address on your profile' :
-                           'Display your phone number on your profile'}
+                          {key === "profileVisible"
+                            ? "Make your profile visible to other users"
+                            : key === "showEmail"
+                            ? "Display your email address on your profile"
+                            : "Display your phone number on your profile"}
                         </p>
                       </div>
                       <input
                         type="checkbox"
                         checked={value}
-                        onChange={(e) => handlePrivacyChange(key, e.target.checked)}
+                        onChange={(e) =>
+                          handlePrivacyChange(key, e.target.checked)
+                        }
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                       />
                     </div>
@@ -571,8 +561,12 @@ const ProfilePage = () => {
                   <h4 className="font-medium text-red-600">Danger Zone</h4>
                   <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
                     <div>
-                      <h4 className="font-medium text-red-800">Delete Account</h4>
-                      <p className="text-sm text-red-600">Permanently delete your account and all data</p>
+                      <h4 className="font-medium text-red-800">
+                        Delete Account
+                      </h4>
+                      <p className="text-sm text-red-600">
+                        Permanently delete your account and all data
+                      </p>
                     </div>
                     <Button variant="destructive" size="sm">
                       <Trash2 className="w-4 h-4 mr-2" />
@@ -589,4 +583,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default withAuth(ProfilePage);

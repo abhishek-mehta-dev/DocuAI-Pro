@@ -39,14 +39,15 @@ import { showMessage } from "@/context/store/messageSlice";
 
 const ROUTES_WITHOUT_HEADER = [
   routes.admin,
-  routes.payment,
   routes.dashboard,
   routes.activity,
   routes.analytics,
   routes.chat,
   routes.document,
-  routes.profile,
   routes.subscription,
+  routes.profile,
+  routes.youtube,
+  routes.bot,
 ];
 
 // Default routes - can be imported from lib/routes if available
@@ -253,28 +254,10 @@ export default function Header() {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => router.push(routes.profile)}
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
                       onClick={() => router.push(routes.dashboard)}
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       Dashboard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => router.push(routes.billing)}
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => router.push(routes.settings)}
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

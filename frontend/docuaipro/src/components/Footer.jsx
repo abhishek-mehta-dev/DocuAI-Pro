@@ -33,6 +33,8 @@ const ROUTES_WITHOUT_FOOTER = [
   routes.document,
   routes.profile,
   routes.subscription,
+  routes.youtube,
+  routes.bot,
 ];
 
 const socialLinks = [
