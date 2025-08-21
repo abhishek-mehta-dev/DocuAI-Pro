@@ -15,35 +15,74 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { showMessage } from "@/context/store/messageSlice";
+import { useUploadPdf, useChatWithPdf } from "@/hooks/useDocument";
 
 export function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
+  const { trigger: uploadTrigger, isLoading: isUploading } = useUploadPdf();
+  const { trigger: chatTrigger, isLoading: isChatting } = useChatWithPdf();
 
   const handleFileUpload = async (file) => {
-    if (file && file.type === "application/pdf") {
-      setIsUploading(true);
-      // Simulate upload process
-      setTimeout(() => {
-        setUploadedFile({
-          name: file.name,
-          size: (file.size / 1024 / 1024).toFixed(2) + " MB",
-          status: "uploaded",
-        });
-        setIsUploading(false);
-        // Add system message about successful upload
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            type: "system",
-            content: `PDF "${file.name}" has been successfully uploaded and processed. You can now ask questions about this document.`,
-          },
-        ]);
-      }, 2000);
+    if (!file) return;
+
+    // PDF-only check
+    if (file.type !== "application/pdf") {
+      dispatch(
+        showMessage({ message: "Only PDF files are allowed", type: "error" })
+      );
+      return;
+    }
+
+    try {
+      const uploadedData = await uploadTrigger(file);
+      console.log("Upload response:", uploadedData);
+
+      if (uploadedData?.status === "error") {
+        dispatch(showMessage({ message: uploadedData.message, type: "error" }));
+        return;
+      }
+
+      dispatch(showMessage({ message: uploadedData.message, type: "success" }));
+
+      setUploadedFile({
+        name: file.name,
+        size: (file.size / 1024 / 1024).toFixed(2) + " MB",
+        status: "uploaded",
+        data: uploadedData.data,
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "system",
+          content: `PDF "${file.name}" has been successfully uploaded.`,
+        },
+      ]);
+    } catch (error) {
+      console.error("Upload failed:", error);
+
+      dispatch(
+        showMessage({
+          message: error?.response?.data?.message || error.message,
+          type: "error",
+        })
+      );
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          type: "system",
+          content: `Failed to upload "${file.name}".`,
+        },
+      ]);
     }
   };
 
@@ -53,9 +92,7 @@ export function ChatInterface() {
     handleFileUpload(file);
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -67,7 +104,7 @@ export function ChatInterface() {
     setMessages((prev) => prev.filter((msg) => msg.type !== "system"));
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!inputValue.trim()) return;
 
     const userMessage = {
@@ -75,21 +112,42 @@ export function ChatInterface() {
       type: "user",
       content: inputValue,
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse = {
-        id: Date.now() + 1,
-        type: "ai",
-        content: uploadedFile
-          ? `Based on the PDF "${uploadedFile.name}", I can help you with that. Here's what I found in the document...`
-          : "Please upload a PDF document first so I can analyze it and answer your questions about its content.",
-      };
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
+    if (!uploadedFile) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          type: "system",
+          content: "Upload a PDF first to ask questions.",
+        },
+      ]);
+      return;
+    }
+
+    try {
+      const response = await chatTrigger({ message: inputValue });
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          type: "ai",
+          content: response?.answer || "No response from AI.",
+        },
+      ]);
+    } catch (error) {
+      console.error("Chat failed:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          type: "system",
+          content: "Failed to get AI response. Please try again.",
+        },
+      ]);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -100,9 +158,9 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6">
+      <div className="space-y-2">
         <h1 className="font-sans text-3xl font-bold text-foreground mb-2">
           Chat with AI
         </h1>
@@ -173,7 +231,7 @@ export function ChatInterface() {
       </Card>
 
       {/* Chat Messages */}
-      {/* <Card className="flex-1 mb-4">
+      <Card className="flex-1 mb-4">
         <CardContent className="p-0 h-full">
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 ? (
@@ -235,7 +293,7 @@ export function ChatInterface() {
             )}
           </div>
         </CardContent>
-      </Card> */}
+      </Card>
 
       {/* Input Section */}
       <Card>
@@ -251,11 +309,11 @@ export function ChatInterface() {
                   : "Upload a PDF first to start chatting"
               }
               className="flex-1"
-              disabled={!uploadedFile}
+              disabled={!uploadedFile || isChatting}
             />
             <Button
               onClick={sendMessage}
-              disabled={!inputValue.trim() || !uploadedFile}
+              disabled={!inputValue.trim() || !uploadedFile || isChatting}
               className="bg-accent hover:bg-accent/90 text-accent-foreground"
             >
               <Send className="h-4 w-4" />
