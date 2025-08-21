@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: Optional[str] = None
     PAYPAL_CLIENT_ID: Optional[str] = None
     PAYPAL_SECRET: Optional[str] = None
+    google_application_credentials: str
     
     # LLM Provider
     DEFAULT_LLM_PROVIDER: str = "openai"
