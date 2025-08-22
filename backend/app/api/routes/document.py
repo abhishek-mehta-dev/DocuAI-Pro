@@ -77,19 +77,114 @@ def chat_with_pdf(
     if not question.strip():
         return error_response("Question is empty", status.HTTP_400_BAD_REQUEST)
 
-    # Check if the document belongs to the current user
     doc = document_service.get_user_document(db, current_user.id, doc_id)
     if not doc:
         return error_response("Document not found", status.HTTP_404_NOT_FOUND)
 
-    # Get answer from FAISS/vector service
     try:
         answer = vector_service.get_answer(doc.faiss_path, question)
     except Exception as e:
-        return error_response(f"Error while processing vector query: {str(e)}", status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error while processing vector query: {str(e)}"
+        )
 
     return success_response(
         data={"answer": answer, "document": convert_document_for_api(doc)},
         message="Answer retrieved successfully",
         status_code=status.HTTP_200_OK,
     )
+
+
+@router.post("/chat/detailed")
+def chat_with_pdf_detailed(
+    doc_id: int = Body(..., embed=True),
+    question: str = Body(..., embed=True),
+    db: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
+    """
+    Chat with PDF - returns additional debugging information
+    
+    Request body:
+    {
+        "doc_id": 22,
+        "question": "give the details about on this pdf"
+    }
+    
+    Returns similarity scores and chunk information for debugging
+    """
+    if not question.strip():
+        return error_response("Question is empty", status.HTTP_400_BAD_REQUEST)
+
+    doc = document_service.get_user_document(db, current_user.id, doc_id)
+    if not doc:
+        return error_response("Document not found", status.HTTP_404_NOT_FOUND)
+
+    try:
+        # Get detailed answer with similarity scores
+        result = vector_service.get_answer_with_similarity_scores(doc.faiss_path, question)
+        
+        return success_response(
+            data={
+                "answer": result["answer"],
+                "document": convert_document_for_api(doc),
+                "question": question,
+                "doc_id": doc_id,
+                "debug_info": {
+                    "chunks_found": result["chunks_found"],
+                    "avg_similarity": result["avg_similarity"],
+                    "similarity_scores": result["similarity_scores"]
+                }
+            },
+            message="Detailed answer retrieved successfully",
+            status_code=status.HTTP_200_OK,
+        )
+        
+    except Exception as e:
+        print(f"Detailed chat error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error while processing detailed query: {str(e)}"
+        )
+
+@router.post("/chat/conversational")
+def chat_with_pdf_conversational(
+    doc_id: int = Body(..., embed=True),
+    question: str = Body(..., embed=True),
+    db: Session = Depends(get_session),
+    current_user=Depends(get_current_user),
+):
+    """
+    Chat with PDF using the original ConversationalRetrievalChain approach
+    Use this if you want to test the chain-based approach
+    """
+    if not question.strip():
+        return error_response("Question is empty", status.HTTP_400_BAD_REQUEST)
+
+    doc = document_service.get_user_document(db, current_user.id, doc_id)
+    if not doc:
+        return error_response("Document not found", status.HTTP_404_NOT_FOUND)
+
+    try:
+        # Use the original conversational chain approach
+        answer = vector_service.get_answer_with_conversational_chain(doc.faiss_path, question)
+        
+        return success_response(
+            data={
+                "answer": answer,
+                "document": convert_document_for_api(doc),
+                "question": question,
+                "doc_id": doc_id,
+                "method": "conversational_chain"
+            },
+            message="Answer retrieved using conversational chain",
+            status_code=status.HTTP_200_OK,
+        )
+        
+    except Exception as e:
+        print(f"Conversational chat error: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error while processing conversational query: {str(e)}"
+        )

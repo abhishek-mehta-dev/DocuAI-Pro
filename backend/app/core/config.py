@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     google_application_credentials:Optional[str] = None
     
     # LLM Provider
-    DEFAULT_LLM_PROVIDER: str = "openai"
+    DEFAULT_LLM_PROVIDER: str = None
 
     # OpenAI
     OPENAI_API_KEY: Optional[str] = None
@@ -55,7 +55,10 @@ class Settings(BaseSettings):
     GROQ_MODEL: str = "mixtral-8x7b"
 
     # HuggingFace
-    HF_MODEL: str = "HuggingFaceH4/zephyr-7b-beta"
+    HF_EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    HF_LLM_MODEL: str ="HuggingFaceH4/zephyr-7b-alpha"
+    HF_API_KEY: Optional[str] = None
+
 
     # NVIDIA
     NVIDIA_API_KEY: Optional[str] = None

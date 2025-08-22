@@ -1,20 +1,9 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Upload,
-  FileText,
-  Send,
-  Bot,
-  User,
-  X,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
+import { Send, Bot, User, X, CheckCircle, Paperclip } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { showMessage } from "@/context/store/messageSlice";
 import { useUploadPdf, useChatWithPdf } from "@/hooks/useDocument";
@@ -31,7 +20,6 @@ export function ChatInterface() {
   const handleFileUpload = async (file) => {
     if (!file) return;
 
-    // PDF-only check
     if (file.type !== "application/pdf") {
       dispatch(
         showMessage({ message: "Only PDF files are allowed", type: "error" })
@@ -41,7 +29,6 @@ export function ChatInterface() {
 
     try {
       const uploadedData = await uploadTrigger(file);
-      console.log("Upload response:", uploadedData);
 
       if (uploadedData?.status === "error") {
         dispatch(showMessage({ message: uploadedData.message, type: "error" }));
@@ -54,7 +41,7 @@ export function ChatInterface() {
         name: file.name,
         size: (file.size / 1024 / 1024).toFixed(2) + " MB",
         status: "uploaded",
-        data: uploadedData.data,
+        data: uploadedData.data, // contains doc_id
       });
 
       setMessages((prev) => [
@@ -67,7 +54,6 @@ export function ChatInterface() {
       ]);
     } catch (error) {
       console.error("Upload failed:", error);
-
       dispatch(
         showMessage({
           message: error?.response?.data?.message || error.message,
@@ -85,14 +71,6 @@ export function ChatInterface() {
       ]);
     }
   };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    handleFileUpload(file);
-  };
-
-  const handleDragOver = (e) => e.preventDefault();
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -128,13 +106,17 @@ export function ChatInterface() {
     }
 
     try {
-      const response = await chatTrigger({ message: inputValue });
+      const response = await chatTrigger({
+        doc_id: uploadedFile.data.id,
+        question: inputValue,
+      });
+
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now() + 1,
           type: "ai",
-          content: response?.answer || "No response from AI.",
+          content: response?.data?.answer || "No response from AI.",
         },
       ]);
     } catch (error) {
@@ -158,169 +140,131 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="font-sans text-3xl font-bold text-foreground mb-2">
+      <div className="border-b border-border px-6 py-4">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Chat with AI
         </h1>
-        <p className="text-muted-foreground">
-          Upload a PDF document and ask questions about its content
-        </p>
       </div>
 
-      {/* Upload Section */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          {!uploadedFile ? (
-            <div
-              className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-accent transition-colors cursor-pointer"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">
-                {isUploading ? "Uploading..." : "Upload PDF Document"}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Drag and drop your PDF here, or click to browse
-              </p>
-              <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                {isUploading ? "Processing..." : "Choose File"}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          {messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                <Bot className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-foreground">
+                  How can I help you today?
+                </h2>
+                <p className="text-muted-foreground text-sm">
+                  Upload a PDF document and I'll help you analyze its content
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 bg-card rounded-lg">
-              <div className="flex items-center space-x-3">
-                <FileText className="h-8 w-8 text-primary" />
-                <div>
-                  <p className="font-medium text-card-foreground">
-                    {uploadedFile.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {uploadedFile.size}
-                  </p>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-800"
-                >
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Uploaded
-                </Badge>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={removeFile}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Chat Messages */}
-      <Card className="flex-1 mb-4">
-        <CardContent className="p-0 h-full">
-          <div className="h-96 overflow-y-auto p-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-center">
-                <div className="space-y-2">
-                  <Bot className="h-12 w-12 text-muted-foreground mx-auto" />
-                  <h3 className="text-lg font-medium">Ready to help!</h3>
-                  <p className="text-muted-foreground">
-                    Upload a PDF and start asking questions
-                  </p>
-                </div>
-              </div>
-            ) : (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.type === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`flex items-start space-x-2 max-w-[80%] ${
-                      message.type === "user"
-                        ? "flex-row-reverse space-x-reverse"
-                        : ""
-                    }`}
-                  >
+            <div className="space-y-6">
+              {messages.map((message) => (
+                <div key={message.id} className="group">
+                  <div className="flex items-start space-x-4">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                         message.type === "user"
                           ? "bg-primary text-primary-foreground"
                           : message.type === "system"
-                          ? "bg-accent text-accent-foreground"
-                          : "bg-card text-card-foreground"
+                          ? "bg-orange-500 text-white"
+                          : "bg-green-500 text-white"
                       }`}
                     >
                       {message.type === "user" ? (
                         <User className="h-4 w-4" />
-                      ) : message.type === "system" ? (
-                        <AlertCircle className="h-4 w-4" />
                       ) : (
                         <Bot className="h-4 w-4" />
                       )}
                     </div>
-                    <div
-                      className={`rounded-lg p-3 ${
-                        message.type === "user"
-                          ? "bg-primary text-primary-foreground"
+                    <div className="flex-1 space-y-1">
+                      <div className="text-sm font-medium text-foreground">
+                        {message.type === "user"
+                          ? "You"
                           : message.type === "system"
-                          ? "bg-accent/10 text-accent border border-accent/20"
-                          : "bg-card text-card-foreground"
-                      }`}
-                    >
-                      <p className="text-sm">{message.content}</p>
+                          ? "System"
+                          : "DocuAI Pro"}
+                      </div>
+                      <div className="text-sm text-foreground leading-relaxed">
+                        {message.content}
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Input Section */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex space-x-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={
-                uploadedFile
-                  ? "Ask a question about your document..."
-                  : "Upload a PDF first to start chatting"
-              }
-              className="flex-1"
-              disabled={!uploadedFile || isChatting}
+      <div className="sticky bottom-0 border-t border-border bg-background">
+        <div className="max-w-3xl mx-auto px-4 py-4">
+          {uploadedFile && (
+            <div className="mb-3 flex items-center justify-between bg-muted rounded-lg p-3">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="h-4 w-4 text-green-500" />
+                <span className="text-sm font-medium">{uploadedFile.name}</span>
+                <span className="text-xs text-muted-foreground">
+                  ({uploadedFile.size})
+                </span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={removeFile}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
+          <div className="relative">
+            <div className="flex items-end space-x-2 bg-muted rounded-2xl p-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-shrink-0 h-8 w-8 p-0 hover:bg-background"
+                disabled={isUploading || isChatting}
+              >
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Message DocuAI Pro..."
+                className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+                disabled={isUploading || isChatting}
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!inputValue.trim() || isUploading || isChatting}
+                size="sm"
+                className="flex-shrink-0 h-8 w-8 p-0 rounded-full"
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              onChange={handleFileSelect}
+              className="hidden"
             />
-            <Button
-              onClick={sendMessage}
-              disabled={!inputValue.trim() || !uploadedFile || isChatting}
-              className="bg-accent hover:bg-accent/90 text-accent-foreground"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+
+          <p className="text-xs text-muted-foreground text-center mt-3">
+            DocuAI Pro can make mistakes. Verify important information.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
