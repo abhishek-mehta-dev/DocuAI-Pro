@@ -18,7 +18,10 @@ export const listDocument = async () => {
   return response.data;
 };
 
-export const chatWithPdf = async () => {
-  const response = await apiClient.post("/document/chat");
+export const chatWithPdf = async ({ doc_id, question }) => {
+  const response = await apiClient.post("/document/chat", {
+    doc_id,
+    question,
+  });
   return response.data;
 };

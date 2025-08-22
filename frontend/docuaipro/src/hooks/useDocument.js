@@ -41,8 +41,8 @@ export const useListDocument = () => {
 export const useChatWithPdf = () => {
   const { data, error, isMutating, trigger } = useSWRMutation(
     "chat-pdf",
-    async () => {
-      return await chatWithPdf();
+    async (key, { arg }) => {
+      return await chatWithPdf(arg);
     }
   );
 
