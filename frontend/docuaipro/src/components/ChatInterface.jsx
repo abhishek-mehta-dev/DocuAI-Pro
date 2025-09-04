@@ -1,21 +1,27 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Bot, User, X, CheckCircle, Paperclip } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { showMessage } from "@/context/store/messageSlice";
 import { useUploadPdf, useChatWithPdf } from "@/hooks/useDocument";
+import LoaderMessage from "@/components/LoaderMessage";
 
 export function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [uploadedFile, setUploadedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const messagesEndRef = useRef(null);
   const dispatch = useDispatch();
-  const { trigger: uploadTrigger, isLoading: isUploading } = useUploadPdf();
-  const { trigger: chatTrigger, isLoading: isChatting } = useChatWithPdf();
+  const { trigger: uploadTrigger } = useUploadPdf();
+  const { trigger: chatTrigger } = useChatWithPdf();
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleFileUpload = async (file) => {
     if (!file) return;
@@ -27,8 +33,18 @@ export function ChatInterface() {
       return;
     }
 
+    // Add loader message
+    const loaderId = Date.now();
+    setMessages((prev) => [
+      ...prev,
+      { id: loaderId, type: "system", loading: true, fileName: file.name },
+    ]);
+
     try {
       const uploadedData = await uploadTrigger(file);
+
+      // Remove loader
+      setMessages((prev) => prev.filter((msg) => msg.id !== loaderId));
 
       if (uploadedData?.status === "error") {
         dispatch(showMessage({ message: uploadedData.message, type: "error" }));
@@ -41,7 +57,7 @@ export function ChatInterface() {
         name: file.name,
         size: (file.size / 1024 / 1024).toFixed(2) + " MB",
         status: "uploaded",
-        data: uploadedData.data, // contains doc_id
+        data: uploadedData.data,
       });
 
       setMessages((prev) => [
@@ -60,6 +76,9 @@ export function ChatInterface() {
           type: "error",
         })
       );
+
+      // Remove loader
+      setMessages((prev) => prev.filter((msg) => msg.id !== loaderId));
 
       setMessages((prev) => [
         ...prev,
@@ -85,11 +104,7 @@ export function ChatInterface() {
   const sendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const userMessage = {
-      id: Date.now(),
-      type: "user",
-      content: inputValue,
-    };
+    const userMessage = { id: Date.now(), type: "user", content: inputValue };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
@@ -105,26 +120,37 @@ export function ChatInterface() {
       return;
     }
 
+    // Add AI loader
+    const loaderId = Date.now() + 2;
+    setMessages((prev) => [
+      ...prev,
+      { id: loaderId, type: "ai", loading: true },
+    ]);
+
     try {
       const response = await chatTrigger({
         doc_id: uploadedFile.data.id,
         question: inputValue,
       });
 
+      // Remove loader
+      setMessages((prev) => prev.filter((msg) => msg.id !== loaderId));
+
       setMessages((prev) => [
         ...prev,
         {
-          id: Date.now() + 1,
+          id: Date.now(),
           type: "ai",
           content: response?.data?.answer || "No response from AI.",
         },
       ]);
     } catch (error) {
       console.error("Chat failed:", error);
+
       setMessages((prev) => [
-        ...prev,
+        ...prev.filter((msg) => msg.id !== loaderId),
         {
-          id: Date.now() + 1,
+          id: Date.now(),
           type: "system",
           content: "Failed to get AI response. Please try again.",
         },
@@ -170,36 +196,42 @@ export function ChatInterface() {
               {messages.map((message) => (
                 <div key={message.id} className="group">
                   <div className="flex items-start space-x-4">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        message.type === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : message.type === "system"
-                          ? "bg-orange-500 text-white"
-                          : "bg-green-500 text-white"
-                      }`}
-                    >
-                      {message.type === "user" ? (
-                        <User className="h-4 w-4" />
-                      ) : (
-                        <Bot className="h-4 w-4" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="text-sm font-medium text-foreground">
-                        {message.type === "user"
-                          ? "You"
-                          : message.type === "system"
-                          ? "System"
-                          : "DocuAI Pro"}
+                    {/* Only show icon for non-loading messages */}
+                    {!message.loading && (
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          message.type === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : message.type === "system"
+                            ? "bg-orange-500 text-white"
+                            : "bg-green-500 text-white"
+                        }`}
+                      >
+                        {message.type === "user" ? (
+                          <User className="h-4 w-4" />
+                        ) : (
+                          <Bot className="h-4 w-4" />
+                        )}
                       </div>
+                    )}
+
+                    <div className="flex-1 space-y-1">
                       <div className="text-sm text-foreground leading-relaxed">
-                        {message.content}
+                        {message.loading ? (
+                          // Show loader directly without outer icon
+                          <LoaderMessage
+                            type={message.type === "system" ? "upload" : "chat"}
+                          />
+                        ) : (
+                          message.content
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
+
+              <div ref={messagesEndRef} />
             </div>
           )}
         </div>
@@ -230,7 +262,6 @@ export function ChatInterface() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 className="flex-shrink-0 h-8 w-8 p-0 hover:bg-background"
-                disabled={isUploading || isChatting}
               >
                 <Paperclip className="h-4 w-4" />
               </Button>
@@ -240,11 +271,10 @@ export function ChatInterface() {
                 onKeyPress={handleKeyPress}
                 placeholder="Message DocuAI Pro..."
                 className="flex-1 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
-                disabled={isUploading || isChatting}
               />
               <Button
                 onClick={sendMessage}
-                disabled={!inputValue.trim() || isUploading || isChatting}
+                disabled={!inputValue.trim()}
                 size="sm"
                 className="flex-shrink-0 h-8 w-8 p-0 rounded-full"
               >
