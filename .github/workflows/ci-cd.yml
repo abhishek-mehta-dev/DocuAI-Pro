@@ -48,7 +48,7 @@ jobs:
           EMAIL="ciuser${RAND}@mailinator.com"
 
           echo "Testing registration endpoint..."
-          response=$(curl -s -w "%{\nhttp_code}" -X POST "http://127.0.0.1:8000/api/auth/register" \
+          response=$(curl -s -w "%{http_code}" -X POST "http://127.0.0.1:8000/api/auth/register" \
             -H "Content-Type: application/json" \
             -d "{
               \"first_name\": \"Abhi\",
