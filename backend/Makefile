@@ -2,26 +2,30 @@
 APP=app.main:app
 HOST=0.0.0.0
 PORT=9000
+PYTHON=.venv/bin/python
+UVICORN=.venv/bin/uvicorn
+ALEMBIC=.venv/bin/alembic
+PYTEST=.venv/bin/pytest
 
 # Development server (auto-reload)
 dev:
-	uvicorn $(APP) --reload --host $(HOST) --port $(PORT)
+	$(UVICORN) $(APP) --reload --host $(HOST) --port $(PORT)
 
 # Production server (no auto-reload)
 start:
-	uvicorn $(APP) --host $(HOST) --port $(PORT)
+	$(UVICORN) $(APP) --host $(HOST) --port $(PORT)
 
 # Alembic database migrations
 alembic-upgrade:
-	alembic upgrade head
+	$(ALEMBIC) upgrade head
 
 alembic-revision:
-	alembic revision --autogenerate -m "$(msg)"
+	$(ALEMBIC) revision --autogenerate -m "$(msg)"
 
 # Run tests
 test:
-	pytest -v --maxfail=1 --disable-warnings -q
+	$(PYTEST) -v --maxfail=1 --disable-warnings -q
 
 # Seed plans into database
 seed-plans:
-	python -m app.seeders.seed_plans
+	$(PYTHON) -m app.seeders.seed_plans
