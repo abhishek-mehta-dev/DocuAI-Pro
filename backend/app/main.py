@@ -1,4 +1,5 @@
 from fastapi.staticfiles import StaticFiles
+import os
 from fastapi import FastAPI
 from sqlmodel import Session
 from sqlalchemy import text
@@ -50,4 +51,5 @@ def read_root():
         message="Root endpoint reached"
     )
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+if os.getenv("TESTING") != "true":
+    app.mount("/", StaticFiles(directory="static", html=True), name="static")

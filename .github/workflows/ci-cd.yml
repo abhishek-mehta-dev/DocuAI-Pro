@@ -36,6 +36,8 @@ jobs:
           echo "Add flake8 or mypy commands here if needed"
 
       - name: Run FastAPI server test
+        env:
+          TESTING: "true"
         run: |
           cd backend
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
