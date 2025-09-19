@@ -1,3 +1,5 @@
+from fastapi.staticfiles import StaticFiles
+import os
 from fastapi import FastAPI
 from sqlmodel import Session
 from sqlalchemy import text
@@ -42,8 +44,12 @@ init_exception_handlers(app)
 # Register API routers
 app.include_router(api_router,prefix='/api')
 
+
 def read_root():
     return success_response(
         data={"greeting": "Hello, World!"},
         message="Root endpoint reached"
     )
+
+if os.getenv("TESTING") != "true":
+    app.mount("/", StaticFiles(directory="static", html=True), name="static")
