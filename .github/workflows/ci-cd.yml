@@ -40,7 +40,7 @@ jobs:
           cd backend
           uvicorn app.main:app --host 127.0.0.1 --port 8000 &
           SERVER_PID=$!
-          sleep 5
+          sleep 15
 
           # Generate random username and email to avoid "already exists" error
           RAND=$RANDOM
